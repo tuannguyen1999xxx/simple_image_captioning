@@ -48,7 +48,12 @@ python train.py
 ```bash
 python train.py --checkpoint_path path/to/checkpoint.pth
 ```
-### **5 Inference**
+### **5 Evaluation**
+- Evaluation on flickr dataset
+```bash
+python evaluation.py
+```
+### **6 Inference**
 - Change path input image
 ```bash
 python inference.py --image ./images/160.jpg

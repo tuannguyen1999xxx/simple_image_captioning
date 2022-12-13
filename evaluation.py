@@ -130,7 +130,7 @@ def main(args):
                              shuffle=False, num_workers=args.num_workers,state='val')
 
     model = CNN_LSTM_model(args.embed_size, args.hidden_size, len(vocab), args.num_layers).to(device)
-    model.load_state_dict(torch.load('./models/checkpoint_037.pth'))
+    model.load_state_dict(torch.load(args.checkpoint_path))
 
     eval_step(model, data_loader, vocab, path_anno_eval=args.eval_path,path_save=os.path.join(dir_save,save_name))
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     parser.add_argument('--caption_path', type=str, default='data/annotations/flick_anno_val_gt.json',
                         help='path for train annotation json file')
     parser.add_argument('--eval_path', type=str, default='data/annotations/flick_anno_val_gt.json')
-
+    parser.add_argument('--checkpoint_path', type=str, default='./models/checkpoint_best.pth')
     # Model parameters
     parser.add_argument('--embed_size', type=int, default=512, help='dimension of word embedding vectors')
     parser.add_argument('--hidden_size', type=int, default=512, help='dimension of lstm hidden states')

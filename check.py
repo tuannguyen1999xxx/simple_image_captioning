@@ -37,8 +37,8 @@ def save_result(out_format, path_save):
             new_out.append(x)
     with open(path_save,'w',encoding='utf-8') as w:
         json.dump(new_out,w,ensure_ascii=False,indent=4)
-coco_caption_eval('/home/usr/Workspaces/tuanns-ai/NLP/cnn_lstm/data/annotations/captions_val2014.json','/home/usr/Workspaces/tuanns-ai/NLP/cnn_lstm/tmp.json')
-# with open('/home/usr/Workspaces/tuanns-ai/NLP/cnn_lstm/out_caption_results/caption_epoch0.json','r',encoding='utf-8') as r:
+coco_caption_eval('./data/annotations/captions_val2014.json','./tmp.json')
+# with open('./out_caption_results/caption_epoch0.json','r',encoding='utf-8') as r:
 #     data = json.load(r)
 #
 # save_result(data, 'tmp.json')

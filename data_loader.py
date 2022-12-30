@@ -48,6 +48,7 @@ class CocoDataset(data.Dataset):
         caption = []
         caption.append(vocab('<start>'))
         caption.extend([vocab(token) for token in tokens])
+        # print(vocab(token) for token in tokens[:10])
         caption.append(vocab('<end>'))
         target = torch.Tensor(caption)
         if self.state == 'train':

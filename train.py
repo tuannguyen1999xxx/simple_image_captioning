@@ -19,7 +19,8 @@ def main(args):
     # Create model directory
     if not os.path.exists(args.model_path):
         os.makedirs(args.model_path)
-    dir_save = 'out_caption_results'
+    # dir_save = 'out_caption_results_dn53_new'
+    dir_save = args.dir_save
     os.makedirs(dir_save, exist_ok=True)
 
     best = 0
@@ -47,7 +48,8 @@ def main(args):
                              transform, args.batch_size,
                              shuffle=False, num_workers=args.num_workers,state='val')
     # Build the models
-    model = CNN_LSTM_model(args.embed_size, args.hidden_size, len(vocab), args.num_layers).to(device)
+    print(len(vocab))
+    model = CNN_LSTM_model(args.embed_size, args.hidden_size, len(vocab), args.num_layers,att=args.att, cnn=args.cnn).to(device)
     if args.checkpoint_path is not None:
         print("Load checkpoint...")
         model.load_state_dict(torch.load(args.checkpoint_path))
@@ -55,6 +57,8 @@ def main(args):
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     params = list(model.parameters())
+    pytorch_total_params = sum(p.numel() for p in model.parameters())
+    print("Params: ",pytorch_total_params)
     optimizer = torch.optim.Adam(params, lr=args.learning_rate)
 
     # Train the models
@@ -80,7 +84,8 @@ def main(args):
             if i % args.log_step == 0:
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                       .format(epoch, args.num_epochs, i, total_step, loss.item()))
-
+            # if i == 1:
+            #     break
         # Save the model checkpoints
         save_name = f'caption_epoch{epoch}.json'
         coco_val = eval_step(model, data_val_loader, vocab,
@@ -108,9 +113,12 @@ if __name__ == '__main__':
     parser.add_argument('--eval_path', type=str, default='data/annotations/captions_val2014.json')
     parser.add_argument('--eval_dir', type=str, default='data/val2014')
 
+    parser.add_argument('--dir_save', type=str, default='out_caption_results')
     parser.add_argument('--log_step', type=int, default=100, help='step size for prining log info')
     parser.add_argument('--save_step', type=int, default=1000, help='step size for saving trained models')
 
+    parser.add_argument('--att', type=bool, default=False)
+    parser.add_argument('--cnn',choices=['vgg','darknet', 'yolov3'], type=str, default='vgg', help='backbone use for extracting feature')
     parser.add_argument('--checkpoint_path', type=str, default=None)
     # Model parameters
     parser.add_argument('--embed_size', type=int, default=512, help='dimension of word embedding vectors')

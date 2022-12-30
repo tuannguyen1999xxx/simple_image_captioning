@@ -13,8 +13,8 @@ from torch.nn.utils.rnn import pack_padded_sequence
 from torchvision import transforms
 from tqdm import tqdm
 # Device configuration
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# device = torch.device('cpu')
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 from pycocotools.coco import COCO
 from pycocoevalcap.eval import COCOEvalCap
 from torchvision.datasets.utils import download_url
@@ -129,10 +129,11 @@ def main(args):
                              transform, args.batch_size,
                              shuffle=False, num_workers=args.num_workers,state='val')
 
-    model = CNN_LSTM_model(args.embed_size, args.hidden_size, len(vocab), args.num_layers).to(device)
+    model = CNN_LSTM_model(args.embed_size, args.hidden_size, len(vocab),
+                           args.num_layers,att=args.att, cnn=args.cnn).to(device)
     model.load_state_dict(torch.load(args.checkpoint_path))
-
-    eval_step(model, data_loader, vocab, path_anno_eval=args.eval_path,path_save=os.path.join(dir_save,save_name))
+    
+    eval_step(model, data_loader, vocab, path_anno_eval=args.eval_path,path_save=os.path.join(dir_save,save_name),batch_size=args.batch_size)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -140,16 +141,19 @@ if __name__ == '__main__':
     parser.add_argument('--crop_size', type=int, default=224, help='size for randomly cropping images')
     parser.add_argument('--vocab_path', type=str, default='data/vocab.pkl', help='path for vocabulary wrapper')
     parser.add_argument('--image_dir', type=str, default='data/', help='directory for resized images')
-    parser.add_argument('--caption_path', type=str, default='data/annotations/flick_anno_val_gt.json',
-                        help='path for train annotation json file')
-    parser.add_argument('--eval_path', type=str, default='data/annotations/flick_anno_val_gt.json')
+
+    parser.add_argument('--att', type=bool, default=False)
+    parser.add_argument('--cnn', choices=['vgg', 'darknet', 'yolov3', 'darknet53'], type=str, default='vgg',
+                        help='backbone use for extracting feature')
+
+    parser.add_argument('--eval_path', type=str, default='data/annotations/nocaps_anno_val_gt.json')
     parser.add_argument('--checkpoint_path', type=str, default='./models/checkpoint_best.pth')
     # Model parameters
     parser.add_argument('--embed_size', type=int, default=512, help='dimension of word embedding vectors')
     parser.add_argument('--hidden_size', type=int, default=512, help='dimension of lstm hidden states')
     parser.add_argument('--num_layers', type=int, default=1, help='number of layers in lstm')
 
-    parser.add_argument('--batch_size', type=int, default=500)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--learning_rate', type=float, default=0.001)
     args = parser.parse_args()

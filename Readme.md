@@ -18,8 +18,8 @@ cd ../../
 ### **2 Download cocodataset**
 ```
 pip install -r requirements.txt
-chmod +x download.sh
-./download.sh
+chmod +x download_dataset.sh
+./download_dataset.sh
 ```
 
 ### **3 Preprocess for training**
